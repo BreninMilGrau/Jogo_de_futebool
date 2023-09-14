@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Futebol</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1E5631;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        canvas {
+            background-color: #2C3E50;
+            display: block;
+            margin: 0 auto;
+            border: 4px solid #D35400;
+        }
+
+        #score {
+            font-family: Arial, sans-serif;
+            color: white;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #instructions {
+            font-family: Arial, sans-serif;
+            color: white;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="score">Pontuação: 0</div>
+    <div id="instructions">Use as setas para cima e para baixo para mover o gol</div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballSpeedX = 5;
+        let ballSpeedY = 5;
+        let goalX = canvas.width - 50;
+        let goalY = canvas.height / 2;
+        let goalSpeedY = 0;
+        let goalWidth = 20;
+        let goalHeight = 80;
+        let score = 0;
+        let goalReached = false;
+
+        function draw() {
+            // Limpar o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar a bola
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mover o gol
+            goalY += goalSpeedY;
+
+            // Verificar se o gol atingiu as bordas do canvas
+            if (goalY < 0) {
+                goalY = 0;
+            } else if (goalY > canvas.height - goalHeight) {
+                goalY = canvas.height - goalHeight;
+            }
+
+            // Desenhar o gol
+            ctx.fillStyle = 'red';
+            ctx.fillRect(goalX, goalY, goalWidth, goalHeight);
+
+            // Verificar se a bola atingiu o gol
+            if (!goalReached && ballX > goalX && ballY > goalY && ballY < goalY + goalHeight) {
+                // Bola atingiu o gol
+                goalReached = true;
+                score++;
+                resetBall();
+            }
+
+            // Desenhar a pontuação
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText('Pontuação: ' + score, 10, 30);
+
+            // Atualizar a posição da bola
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Verificar colisões com as paredes
+            if (ballX < 0 || ballX > canvas.width) {
+                ballSpeedX = -ballSpeedX;
+            }
+            if (ballY < 0 || ballY > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Função para reiniciar a bola após um gol
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = 5;
+            ballSpeedY = 5;
+            goalReached = false;
+        }
+
+        // Iniciar o jogo
+        draw();
+
+        // Capturar eventos de teclado
+        window.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowUp') {
+                goalSpeedY = -5; // Mover o gol para cima
+            } else if (e.key === 'ArrowDown') {
+                goalSpeedY = 5; // Mover o gol para baixo
+            }
+        });
+
+        window.addEventListener('keyup', function (e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                goalSpeedY = 0; // Parar o movimento do gol ao soltar a tecla
+            }
+        });
+    </script>
+</body>
+</html>
